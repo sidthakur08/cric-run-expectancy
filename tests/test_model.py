@@ -6,7 +6,7 @@ from unittest.mock import patch
 import joblib
 
 # We'll import the train_model function directly from model.py
-from app.model import train_model
+from model import train_model
 
 @pytest.fixture
 def synthetic_delivery_csv(tmp_path):
@@ -44,7 +44,7 @@ def test_train_model_runs_successfully(synthetic_delivery_csv, tmp_path):
     # and patch joblib.dump so it writes to our tmp_path.
     df = pd.read_csv(synthetic_delivery_csv)
     
-    with patch("app.model.pd.read_csv", return_value=df): #patch("app.model.joblib.dump") as mock_dump, \
+    with patch("model.pd.read_csv", return_value=df): #patch("model.joblib.dump") as mock_dump, \
         
         # Call the training function
         train_model(input_path=synthetic_delivery_csv, output_path=model_path)
@@ -69,7 +69,7 @@ def test_train_model_produces_reasonable_metrics(synthetic_delivery_csv, capsys)
     """
     df = pd.read_csv(synthetic_delivery_csv)
 
-    with patch("app.model.pd.read_csv", return_value=df):
+    with patch("model.pd.read_csv", return_value=df):
         
         train_model(input_path=synthetic_delivery_csv)
         captured = capsys.readouterr()  # capture the stdout
@@ -95,7 +95,7 @@ def test_train_model_handles_missing_columns(tmp_path):
     df.to_csv(csv_path, index=False)
     
     df = pd.read_csv(csv_path)
-    with patch("app.model.pd.read_csv", return_value = df):
+    with patch("model.pd.read_csv", return_value = df):
         
         with pytest.raises(KeyError) as exc_info:
             train_model(input_path=csv_path)
@@ -111,7 +111,7 @@ def test_train_model_empty_data(tmp_path):
 
     df = pd.read_csv(csv_path)
     
-    with patch("app.model.pd.read_csv", return_value=df):
+    with patch("model.pd.read_csv", return_value=df):
         
         with pytest.raises(ValueError):
             train_model(input_path=csv_path)
