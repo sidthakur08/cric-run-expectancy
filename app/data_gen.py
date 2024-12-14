@@ -90,7 +90,7 @@ def generate_data():
         return pd.DataFrame(innings_processed)
 
     # Apply to each innings
-    final_balls_df = innings_df.groupby(['matchid', 'team', 'innings'], group_keys=False).apply(process_innings_data).reset_index(drop=True)
+    final_balls_df = innings_df.groupby(['matchid', 'team', 'innings'])[list(innings_df.columns)].apply(process_innings_data).reset_index(drop=True)
     final_balls_df.to_csv('data/delivery.csv', index=False)
 
 if __name__ == "__main__":
