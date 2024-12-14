@@ -10,7 +10,7 @@ python model.py
 echo "Predicting for Ireland overs..."
 
 python pred.py \
-    --model models/linear_model.pkl \
+    --model models/model.pkl \
     --csv data/delivery.csv \
     --team "Ireland" \
     --start_over 1 \

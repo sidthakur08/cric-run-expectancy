@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import joblib
-import random
 
 from sklearn.linear_model import LinearRegression
 # from sklearn.ensemble import RandomForestRegressor
@@ -11,8 +10,18 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 
-def train_model():
-    delivery = pd.read_csv('data/delivery.csv')
+def train_model(input_path = 'data/delivery.csv', output_path = 'models/model.pkl'):
+
+    req_cols = {'matchid','team','innings','remaining_overs','runs_on_ball'}
+    delivery = pd.read_csv(input_path)
+
+    print(delivery)
+
+    if not req_cols.issubset(delivery.columns):
+        raise KeyError(f"Missing required columns: {req_cols - set(delivery.columns)}")
+    
+    if delivery.empty:
+        raise ValueError("The dataset is empty")
 
     # Get sum of runs per over
     delivery['remaining_overs'] = delivery['remaining_overs'].apply(lambda r:int(r))
@@ -22,7 +31,7 @@ def train_model():
 
     # Example: split by matchid
     match_ids = over_data['matchid'].unique()
-    random.seed(123)
+    np.random.seed(123)
     np.random.shuffle(match_ids)
     train_ids = match_ids[:int(0.8*len(match_ids))]
     test_ids = match_ids[int(0.8*len(match_ids)):]
@@ -65,7 +74,7 @@ def train_model():
 
     print(f"MAE: {mae}, RMSE: {rmse}")
 
-    joblib.dump(model_pipeline, 'models/linear_model.pkl')
+    joblib.dump(model_pipeline, output_path)
     print("Model saved!")
 
 if __name__ == '__main__':
