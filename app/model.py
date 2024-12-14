@@ -11,7 +11,7 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 
-delivery = pd.read_csv('../data/delivery.csv')
+delivery = pd.read_csv('data/delivery.csv')
 
 # Get sum of runs per over
 delivery['remaining_overs'] = delivery['remaining_overs'].apply(lambda r:int(r))

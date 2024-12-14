@@ -5,7 +5,7 @@ import math
 
 # loading in the JSON data
 print("Loading in Match Results JSON...")
-with open('match_results.json','r') as f:
+with open('data/match_results.json','r') as f:
     match_res = json.load(f)
 
 match_df = pd.DataFrame(match_res)
@@ -21,7 +21,7 @@ valid_match_ids = filtered_matches['matchid'].unique().tolist()
 
 # Load innings data
 print("Loading in Innings JSON...")
-with open('innings_results.json', 'r') as f:
+with open('data/innings_results.json', 'r') as f:
     innings_res = json.load(f)
 
 innings_df = pd.DataFrame(innings_res)
@@ -31,7 +31,7 @@ innings_df = innings_df[innings_df['matchid'].isin(valid_match_ids)]
 select_cols = ['runs.batsman','runs.extras','runs.total','over','team','innings','matchid','wides','wicket.kind','wicket.player_out','wicket.fielders','legbyes','noballs','byes']
 innings_df = innings_df.loc[:,select_cols]
 print("Dimensions after only keeping relevant matchids and cleaning columns", innings_df.shape)
-innings_df.head()
+
 # Convert over to numeric for sorting and calculations
 innings_df['over_numeric'] = innings_df['over'].astype(float)
 innings_df = innings_df.sort_values(by=['matchid', 'innings', 'over_numeric']).reset_index(drop=True)
@@ -80,4 +80,4 @@ def process_innings_data(data):
 
 # Apply to each innings
 final_balls_df = innings_df.groupby(['matchid', 'team', 'innings'], group_keys=False).apply(process_innings_data).reset_index(drop=True)
-final_balls_df.to_csv('../data/delivery.csv', index=False)
+final_balls_df.to_csv('data/delivery.csv', index=False)
