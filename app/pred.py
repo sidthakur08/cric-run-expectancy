@@ -5,15 +5,18 @@ import joblib
 def get_preds(model_path, csv_path, team="Ireland", start_over = 1, end_over = 5):
     model = joblib.load(model_path)
     team_data = pd.read_csv(csv_path)
-    team_data = team_data[(team_data['team']==team)]
 
-    # Get sum of runs per over
+    select_cols = ['team','innings','remaining_overs']
+    team_data = team_data.loc[:,select_cols]
+    team_data = team_data[team_data['team']==team]
+
     team_data['remaining_overs'] = team_data['remaining_overs'].apply(lambda r:int(r))
-    over_data = team_data.groupby(['matchid', 'team', 'innings', 'remaining_overs'], sort=False)['runs_on_ball'].sum().reset_index(name='runs_this_over')
-    over_data['overs'] = 50 - team_data['remaining_overs']
-    over_data = over_data[(over_data['overs'] >= start_over) & (over_data['overs'] <= end_over)]
+    team_data['overs'] = team_data['remaining_overs'].apply(lambda r: 50 - r)
+    team_data = team_data[(team_data['overs'] >= start_over) & (team_data['overs'] <= end_over)].reset_index(drop=True).drop_duplicates()
 
-    return over_data
+    team_data['pred_runs_in_over'] = model.predict(team_data.loc[:,['team','innings','remaining_overs']])
+
+    print(team_data)
 
 
 if __name__ == "__main__":
