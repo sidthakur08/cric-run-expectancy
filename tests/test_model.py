@@ -49,15 +49,6 @@ def test_train_model_runs_successfully(synthetic_delivery_csv, tmp_path):
         # Call the training function
         train_model(input_path=synthetic_delivery_csv, output_path=model_path)
         
-        '''# We expect joblib.dump to be called once with the pipeline object and path
-        mock_dump.assert_called_once()
-        
-        # Extract the actual arguments to see what path was used
-        pipeline_arg, saved_path = mock_dump.call_args[0]
-        # pipeline_arg is the pipeline object, saved_path is 'models/model.pkl' by default
-        
-        # Manually save to our temporary path to confirm we can load it
-        joblib.dump(pipeline_arg, model_path)'''
         assert os.path.exists(model_path), "Model artifact not saved properly in test environment."
 
 
