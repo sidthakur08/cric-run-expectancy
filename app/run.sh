@@ -8,10 +8,12 @@ echo "Training model..."
 python model.py
 
 echo "Predicting for Ireland overs..."
-
 python pred.py \
     --model models/model.pkl \
     --csv data/delivery.csv \
     --team "Ireland" \
     --start_over 1 \
     --end_over 5
+
+echo "Running tests..."
+pytest tests --maxfail=5 --disable-warnings -v

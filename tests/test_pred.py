@@ -1,11 +1,11 @@
-'''import pytest
+import pytest
 import pandas as pd
 from unittest.mock import patch
 import joblib
 import os
 
 # Import the function directly from pred.py
-from app.pred import get_preds
+from pred import get_preds
 
 @pytest.fixture
 def synthetic_model(tmp_path):
@@ -73,15 +73,16 @@ def test_get_preds_basic(synthetic_model, synthetic_csv, capsys):
         model_path=str(synthetic_model),
         csv_path=str(synthetic_csv),
         team="Ireland",
-        start_over=1,
-        end_over=10
+        start_over=40,
+        end_over=45
     )
     captured = capsys.readouterr()
+    print(captured.out)
     # Confirm the function prints a dataframe with 'pred_runs_in_over'
-    assert "pred_runs_in_over" in captured.out, "Expected predictions in the printed dataframe."'''
+    assert "pred_runs_in_over" in captured.out, "Expected predictions in the printed dataframe."
 
 
-'''def test_get_preds_different_range(synthetic_model, synthetic_csv, capsys):
+def test_get_preds_different_range(synthetic_model, synthetic_csv, capsys):
     """
     Test a different overs range. 
     Possibly filters out or includes different rows.
@@ -90,8 +91,8 @@ def test_get_preds_basic(synthetic_model, synthetic_csv, capsys):
         model_path=str(synthetic_model),
         csv_path=str(synthetic_csv),
         team="Ireland",
-        start_over=11,
-        end_over=20
+        start_over=30,
+        end_over=40
     )
     captured = capsys.readouterr()
     # Because Ireland has some 'remaining_overs'=15 in the CSV, the overs=35
@@ -115,7 +116,7 @@ def test_get_preds_unknown_team(synthetic_model, synthetic_csv, capsys):
     )
     captured = capsys.readouterr()
     # The printed dataframe might have 0 rows if the team doesn't exist.
-    assert "Empty DataFrame" in captured.out or "NaN" in captured.out, "Expected empty or no predictions for unknown team."
+    assert "No data available for predictions. Check your team name and overs range." in captured.out or "NaN" in captured.out, "Expected empty or no predictions for unknown team."
 
 
 def test_get_preds_missing_model(synthetic_csv):
@@ -151,4 +152,3 @@ def test_get_preds_missing_columns(synthetic_model, tmp_path, capsys):
             start_over=1,
             end_over=10
         )
-'''

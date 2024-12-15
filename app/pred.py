@@ -14,9 +14,15 @@ def get_preds(model_path, csv_path, team="Ireland", start_over = 1, end_over = 5
     team_data['overs'] = team_data['remaining_overs'].apply(lambda r: 50 - r)
     team_data = team_data[(team_data['overs'] >= start_over) & (team_data['overs'] <= end_over)].reset_index(drop=True).drop_duplicates()
 
+    # Check if the DataFrame is empty after filtering
+    if team_data.empty:
+        print("No data available for predictions. Check your team name and overs range.")
+        return
+
     team_data['pred_runs_in_over'] = model.predict(team_data.loc[:,['team','innings','remaining_overs']])
 
-    print(team_data)
+    # Print the result
+    print(team_data.to_string(index=False))
 
 
 if __name__ == "__main__":

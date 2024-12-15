@@ -14,5 +14,7 @@ RUN mkdir -p /app/models
 # Make run.sh executable
 RUN chmod +x /app/run.sh
 
-# Set an entrypoint for testing
-ENTRYPOINT ["pytest", "--maxfail=5", "--disable-warnings", "-v"]
+CMD ["./run.sh"]
+
+# # Set an entrypoint for testing
+# ENTRYPOINT ["pytest", "--maxfail=5", "--disable-warnings", "-v"]
