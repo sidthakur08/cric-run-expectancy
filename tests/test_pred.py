@@ -54,7 +54,7 @@ def synthetic_csv(tmp_path):
     """
     csv_path = tmp_path / "inference_data.csv"
     df = pd.DataFrame({
-        "team": ["Ireland", "Ireland", "England", "Ireland"],
+        "team": ["England", "England", "Ireland", "England"],
         "innings": [1, 1, 1, 2],
         "remaining_overs": [10, 10, 9, 15]  # just some random values
     })
@@ -89,15 +89,15 @@ def test_get_preds_different_range(synthetic_model, synthetic_csv, capsys):
     get_preds(
         model_path=str(synthetic_model),
         csv_path=str(synthetic_csv),
-        team="Ireland",
+        team="England",
         start_over=30,
         end_over=40
     )
     captured = capsys.readouterr()
-    # Because Ireland has some 'remaining_overs'=15 in the CSV, the overs=35
-    # should appear if 35 is in range(11..20). 
+    # Because England has some 'remaining_overs'=15 in the CSV, the overs=35
+    # should appear if 35 is in range(30..40). 
     # But let's just check that something was printed.
-    assert "pred_runs_in_over" in captured.out, "Expected predictions in the printed dataframe for overs 11..20."
+    assert "pred_runs_in_over" in captured.out, "Expected predictions in the printed dataframe for overs 30..40."
 
 
 def test_get_preds_unknown_team(synthetic_model, synthetic_csv, capsys):
