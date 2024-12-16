@@ -72,7 +72,6 @@ def generate_data():
         for _, row in data.iterrows():
             runs_on_ball = row.get('runs.total', 0)
             wicket_on_ball = 1 if row['wicket.kind'] in wicket_tags else 0
-            wickets_remaining = 10 - wickets_fallen
 
             # Determine if the ball is legal (exclude wides and no-balls)
             legal = math.isnan(row['wides']) and math.isnan(row['noballs'])
@@ -85,6 +84,12 @@ def generate_data():
             balls_remaining_in_over = balls_remaining % 6
             remaining_overs = overs_remaining_int + (balls_remaining_in_over * 0.1)
 
+            # Update wickets fallen
+            if wicket_on_ball:
+                wickets_fallen += 1
+            
+            wickets_remaining = 10 - wickets_fallen
+
             # Append processed row
             innings_processed.append({
                 'matchid': row['matchid'],
@@ -95,10 +100,6 @@ def generate_data():
                 'runs_on_ball': runs_on_ball,
                 'wicket_on_ball': wicket_on_ball,
             })
-
-            # Update wickets fallen
-            if wicket_on_ball:
-                wickets_fallen += 1
 
         return pd.DataFrame(innings_processed)
 
