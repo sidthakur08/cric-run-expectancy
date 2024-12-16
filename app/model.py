@@ -3,79 +3,78 @@ import numpy as np
 import joblib
 
 from sklearn.linear_model import LinearRegression
-# from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
+# from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 
 def train_model(input_path = 'data/delivery.csv', output_path = 'models/model.pkl'):
+    '''
+    Trains a Linear Regression model using delivery data and saves the model.
+    
+    Args:
+    input_path (str): Path to the input CSV file.
+    output_path (str): Path to save the trained model.
+    '''
 
-    req_cols = {'matchid','team','innings','remaining_overs','runs_on_ball'}
+    print("Loading input data...")
     delivery = pd.read_csv(input_path)
 
-    print(delivery)
-
+    # Check required columns
+    req_cols = {'matchid', 'team', 'innings', 'remaining_overs', 'runs_on_ball'}
     if not req_cols.issubset(delivery.columns):
         raise KeyError(f"Missing required columns: {req_cols - set(delivery.columns)}")
-    
+
     if delivery.empty:
         raise ValueError("The dataset is empty")
 
-    # Get sum of runs per over
-    delivery['remaining_overs'] = delivery['remaining_overs'].apply(lambda r:int(r))
+    # Preprocess data
+    print("Preprocessing data...")
+    delivery['remaining_overs'] = delivery['remaining_overs'].apply(lambda r: int(r))
     over_data = delivery.groupby(['matchid', 'team', 'innings', 'remaining_overs'], sort=False)['runs_on_ball'].sum().reset_index(name='runs_this_over')
-    # since questions is asking for runs per over, not runs per over with wickets in hand -- below code is commented out
-    # over_runs_df = final_balls_df.groupby(['matchid', 'team', 'innings', 'remaining_overs','remaining_wickets'], sort=False)['runs_on_ball'].sum().reset_index(name='runs_this_over')
 
-    # Example: split by matchid
+    # Split data into training and testing
+    print("Splitting data into train and test sets...")
     match_ids = over_data['matchid'].unique()
     np.random.seed(123)
     np.random.shuffle(match_ids)
-    train_ids = match_ids[:int(0.8*len(match_ids))]
-    test_ids = match_ids[int(0.8*len(match_ids)):]
+    train_ids = match_ids[:int(0.8 * len(match_ids))]
+    test_ids = match_ids[int(0.8 * len(match_ids)):]
 
     train_df = over_data[over_data['matchid'].isin(train_ids)]
     test_df = over_data[over_data['matchid'].isin(test_ids)]
 
-    # train_df, test_df = train_test_split(over_data, test_size=0.3, random_state=42)
-
-    features = ['team','innings','remaining_overs']
-
+    features = ['team', 'innings', 'remaining_overs']
     X_train = train_df[features]
     y_train = train_df['runs_this_over']
-
     X_test = test_df[features]
     y_test = test_df['runs_this_over']
 
+    # Define preprocessor for categorical features
     categ_features = ['team']
-    num_features = ['innings','remaining_overs']
+    preprocessor = ColumnTransformer([
+        ('cat', OneHotEncoder(handle_unknown='ignore'), categ_features)
+    ], remainder='passthrough')
 
-    preprocessor = ColumnTransformer(
-        transformers=[
-            ('cat', OneHotEncoder(handle_unknown='ignore'), categ_features),
-        ],
-        remainder='passthrough'
-    )
-
-    # Build a pipeline: first transform (preprocessor), then fit a model
+    # Build pipeline with preprocessor and Linear Regression model
+    print("Training Linear Regression model...")
     model_pipeline = Pipeline([
         ('preprocessor', preprocessor),
         ('regressor', LinearRegression())
     ])
-
     model_pipeline.fit(X_train, y_train)
-    y_pred = model_pipeline.predict(X_test)
 
+    # Evaluate model
+    print("Evaluating model...")
+    y_pred = model_pipeline.predict(X_test)
     mae = mean_absolute_error(y_test, y_pred)
     mse = mean_squared_error(y_test, y_pred)
-    rmse = mse**0.5
+    print(f"MAE: {mae}, RMSE: {mse**0.5}")
 
-    print(f"MAE: {mae}, RMSE: {rmse}")
-
+    # Save model
     joblib.dump(model_pipeline, output_path)
-    print("Model saved!")
+    print(f"Model saved to {output_path}")
 
 if __name__ == '__main__':
     train_model()

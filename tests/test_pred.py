@@ -4,7 +4,6 @@ from unittest.mock import patch
 import joblib
 import os
 
-# Import the function directly from pred.py
 from pred import get_preds
 
 @pytest.fixture

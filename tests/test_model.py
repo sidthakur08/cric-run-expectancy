@@ -5,7 +5,6 @@ import numpy as np
 from unittest.mock import patch
 import joblib
 
-# We'll import the train_model function directly from model.py
 from model import train_model
 
 @pytest.fixture
