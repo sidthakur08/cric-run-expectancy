@@ -3,6 +3,7 @@ import pytest
 import pandas as pd
 import numpy as np
 from unittest.mock import patch
+import joblib
 
 from model import train_model
 
@@ -28,6 +29,45 @@ def synthetic_delivery_csv(tmp_path):
     df = pd.DataFrame(data)
     df.to_csv(csv_path, index=False)
     return csv_path
+
+def test_train_model_runs_successfully(synthetic_delivery_csv, tmp_path):
+    """
+    Test that the train_model function runs without error on synthetic data
+    and produces a model artifact with the correct filename.
+    """
+    # We expect the model to be saved at 'models/model.pkl' by default.
+    # But let's patch the path so we don't write to the real location.
+    model_path = tmp_path / "test_model.pkl"
+    
+    # We'll patch 'pd.read_csv' to read from our synthetic_delivery_csv fixture
+    # and patch joblib.dump so it writes to our tmp_path.
+    df = pd.read_csv(synthetic_delivery_csv)
+    
+    with patch("model.pd.read_csv", return_value=df): #patch("model.joblib.dump") as mock_dump, \
+        
+        # Call the training function
+        train_model(input_path=synthetic_delivery_csv, output_path=model_path)
+        
+        assert os.path.exists(model_path), "Model artifact not saved properly in test environment."
+
+
+def test_train_model_produces_reasonable_metrics(synthetic_delivery_csv, capsys):
+    """
+    Test that the printed MAE and RMSE are computed and printed.
+    We won't assert a strict threshold (since it's random data), but we check that
+    the function prints MAE/RMSE.
+    """
+    df = pd.read_csv(synthetic_delivery_csv)
+
+    with patch("model.pd.read_csv", return_value=df):
+        
+        train_model(input_path=synthetic_delivery_csv)
+        captured = capsys.readouterr()  # capture the stdout
+        
+        # We expect something like "MAE: X, RMSE: Y"
+        assert "MAE:" in captured.out, "Expected MAE output not found."
+        assert "RMSE:" in captured.out, "Expected RMSE output not found."
+
 
 def test_train_model_handles_missing_columns(tmp_path):
     """
@@ -65,39 +105,3 @@ def test_train_model_empty_data(tmp_path):
         
         with pytest.raises(ValueError):
             train_model(input_path=csv_path)
-
-def test_train_model_runs_successfully(synthetic_delivery_csv, tmp_path):
-    """
-    Test that the train_model function runs without error on synthetic data
-    and produces a model artifact with the correct filename.
-    """
-    # We expect the model to be saved at 'models/model.pkl' by default.
-    # But let's patch the path so we don't write to the real location.
-    model_path = tmp_path / "test_model.pkl"
-    
-    # We'll patch 'pd.read_csv' to read from our synthetic_delivery_csv fixture
-    df = pd.read_csv(synthetic_delivery_csv)
-    
-    with patch("model.pd.read_csv", return_value=df):
-        
-        # Call the training function
-        train_model(input_path=synthetic_delivery_csv, output_path=model_path)
-        
-        assert os.path.exists(model_path), "Model artifact not saved properly in test environment."
-
-
-def test_train_model_produces_metrics(synthetic_delivery_csv, capsys):
-    """
-    Test that the printed MAE and RMSE are computed and printed.
-    We check that the function prints MAE/RMSE.
-    """
-    df = pd.read_csv(synthetic_delivery_csv)
-
-    with patch("model.pd.read_csv", return_value=df):
-        
-        train_model(input_path=synthetic_delivery_csv)
-        captured = capsys.readouterr()  # capture the stdout
-        
-        # We expect something like "MAE: X, RMSE: Y"
-        assert "MAE:" in captured.out, "Expected MAE output not found."
-        assert "RMSE:" in captured.out, "Expected RMSE output not found."
