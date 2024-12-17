@@ -1,5 +1,3 @@
-
-oauth.json
-
+*.json
 
 venv/
