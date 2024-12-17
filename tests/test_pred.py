@@ -8,10 +8,10 @@ from pred import get_preds
 
 @pytest.fixture
 def synthetic_model(tmp_path):
-    """
+    '''
     Create a synthetic scikit-learn pipeline or model artifact and save it
     so we can load it in the test. 
-    """
+    '''
     import numpy as np
     from sklearn.pipeline import Pipeline
     from sklearn.compose import ColumnTransformer
@@ -47,11 +47,11 @@ def synthetic_model(tmp_path):
 
 @pytest.fixture
 def synthetic_csv(tmp_path):
-    """
+    '''
     Create a synthetic CSV resembling 'delivery.csv' with columns:
     'team', 'innings', 'remaining_overs', etc.
     We don't strictly need match_id or other columns if get_preds won't use them.
-    """
+    '''
     csv_path = tmp_path / "inference_data.csv"
     df = pd.DataFrame({
         "team": ["Ireland", "Ireland", "England", "Ireland"],
@@ -63,11 +63,11 @@ def synthetic_csv(tmp_path):
 
 
 def test_get_preds_basic(synthetic_model, synthetic_csv, capsys):
-    """
+    '''
     Test a basic scenario where we load a model pipeline,
     filter the CSV by team='Ireland' and overs range,
     and check the printed output.
-    """
+    '''
     get_preds(
         model_path=str(synthetic_model),
         csv_path=str(synthetic_csv),
@@ -82,10 +82,10 @@ def test_get_preds_basic(synthetic_model, synthetic_csv, capsys):
 
 
 def test_get_preds_different_range(synthetic_model, synthetic_csv, capsys):
-    """
+    '''
     Test a different overs range. 
     Possibly filters out or includes different rows.
-    """
+    '''
     get_preds(
         model_path=str(synthetic_model),
         csv_path=str(synthetic_csv),
@@ -101,11 +101,11 @@ def test_get_preds_different_range(synthetic_model, synthetic_csv, capsys):
 
 
 def test_get_preds_unknown_team(synthetic_model, synthetic_csv, capsys):
-    """
+    '''
     If the user passes a team that doesn't exist in the CSV, 
     we might get an empty DataFrame in the output. 
     Check if that scenario is handled or prints an empty DF.
-    """
+    '''
     get_preds(
         model_path=str(synthetic_model),
         csv_path=str(synthetic_csv),
@@ -119,9 +119,9 @@ def test_get_preds_unknown_team(synthetic_model, synthetic_csv, capsys):
 
 
 def test_get_preds_missing_model(synthetic_csv):
-    """
+    '''
     If the model file doesn't exist or path is wrong, joblib.load will raise an error.
-    """
+    '''
     with pytest.raises(FileNotFoundError):
         get_preds(
             model_path="non_existent_model.pkl",
@@ -131,10 +131,10 @@ def test_get_preds_missing_model(synthetic_csv):
 
 
 def test_get_preds_missing_columns(synthetic_model, tmp_path, capsys):
-    """
+    '''
     If the CSV file is missing expected columns (e.g. 'remaining_overs'),
     we should see an error from the code or from the pipeline.
-    """
+    '''
     broken_csv = tmp_path / "broken_inference.csv"
     df = pd.DataFrame({
         "team": ["Ireland", "England"],

@@ -9,11 +9,11 @@ from model import train_model
 
 @pytest.fixture
 def synthetic_delivery_csv(tmp_path):
-    """
+    '''
     Creates a synthetic version of the 'delivery.csv' file in a temporary directory.
     The columns replicate the expected schema from the real data:
       matchid, team, innings, remaining_overs, runs_on_ball
-    """
+    '''
     csv_path = tmp_path / "delivery.csv"
     
     # Create some synthetic data
@@ -70,9 +70,9 @@ def test_train_model_produces_reasonable_metrics(synthetic_delivery_csv, capsys)
 
 
 def test_train_model_handles_missing_columns(tmp_path):
-    """
+    '''
     If the CSV is missing expected columns, the code might raise an error.
-    """
+    '''
     # Create a CSV missing 'runs_on_ball' column
     csv_path = tmp_path / "delivery.csv"
     df = pd.DataFrame({
@@ -93,9 +93,9 @@ def test_train_model_handles_missing_columns(tmp_path):
 
 
 def test_train_model_empty_data(tmp_path):
-    """
+    '''
     If the CSV is empty or has no rows, we expect an error or a poor result.
-    """
+    '''
     csv_path = tmp_path / "delivery.csv"
     pd.DataFrame(columns=["matchid", "team", "innings", "remaining_overs", "runs_on_ball"]).to_csv(csv_path, index=False)
 
@@ -104,4 +104,44 @@ def test_train_model_empty_data(tmp_path):
     with patch("model.pd.read_csv", return_value=df):
         
         with pytest.raises(ValueError):
+<<<<<<< HEAD
             train_model(input_path=csv_path)
+=======
+            train_model(input_path=csv_path)
+
+def test_train_model_runs_successfully(synthetic_delivery_csv, tmp_path):
+    '''
+    Test that the train_model function runs without error on synthetic data
+    and produces a model artifact with the correct filename.
+    '''
+    # We expect the model to be saved at 'models/model.pkl' by default.
+    # But let's patch the path so we don't write to the real location.
+    model_path = tmp_path / "test_model.pkl"
+    
+    # We'll patch 'pd.read_csv' to read from our synthetic_delivery_csv fixture
+    df = pd.read_csv(synthetic_delivery_csv)
+    
+    with patch("model.pd.read_csv", return_value=df):
+        
+        # Call the training function
+        train_model(input_path=synthetic_delivery_csv, output_path=model_path)
+        
+        assert os.path.exists(model_path), "Model artifact not saved properly in test environment."
+
+
+def test_train_model_produces_metrics(synthetic_delivery_csv, capsys):
+    '''
+    Test that the printed MAE and RMSE are computed and printed.
+    We check that the function prints MAE/RMSE.
+    '''
+    df = pd.read_csv(synthetic_delivery_csv)
+
+    with patch("model.pd.read_csv", return_value=df):
+        
+        train_model(input_path=synthetic_delivery_csv)
+        captured = capsys.readouterr()  # capture the stdout
+        
+        # We expect something like "MAE: X, RMSE: Y"
+        assert "MAE:" in captured.out, "Expected MAE output not found."
+        assert "RMSE:" in captured.out, "Expected RMSE output not found."
+>>>>>>> good-code
