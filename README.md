@@ -2,7 +2,7 @@
 
 Running the code
 1. [Install Docker](https://docs.docker.com/engine/install/) on your system
-2. Make sure `match_results.json` and `innings_results.json` files in the `cric-run-expectancy/data` folder (available on [cricsheet](https://cricsheet.org/format/), email me if help needed), needed to be used by the `data_gen.script`
+2. Make sure `match_results.json` and `innings_results.json` files in the `cric-run-expectancy/data` folder (available on [cricsheet](https://cricsheet.org/format/), also added in under Github Release), needed to be used by the `data_gen.script`
 3. Follow instructions given below,
 ```
 git clone https://github.com/sidthakur08/cric-run-expectancy.git
